@@ -1,0 +1,66 @@
+% This code is for the bonus question. It can detect any unknown word
+% spoken (other than the 6 known words of the dataset). If any unknown word
+% is spoken, it will show "unknown" as the spoken word.
+
+clc; clear all; close all;
+
+load("features.mat");
+
+recObj = audiorecorder(44100,16,1,0);
+recTime=3;
+fprintf('\n....Recording started...\n');
+recordblocking(recObj, recTime);
+fprintf('\n...recording ended...\n' );
+        
+audioIn1 = getaudiodata(recObj);
+c=mfcc( audioIn1, 44100, "LogEnergy","ignore");
+c( : , 1)=[];
+
+d=zeros(1,6);
+
+for i=1:166
+    
+    coff=W1(  (i-1)*298+1 : (i*298) , :);
+    d(1)=d(1)+dtw(c',coff');
+    
+     coff=W2(  (i-1)*298+1 : (i*298) , :);
+     d(2)=d(2)+dtw(c',coff');
+    
+     coff=W3(  (i-1)*298+1 : (i*298) , :);
+     d(3)=d(3)+dtw(c',coff');
+    
+     coff=W4(  (i-1)*298+1 : (i*298) , :);
+     d(4)=d(4)+dtw(c',coff');
+    
+     coff=W5(  (i-1)*298+1 : (i*298) , :);
+     d(5)=d(5)+dtw(c',coff');
+    
+     coff=W6(  (i-1)*298+1 : (i*298) , :);
+     d(6)=d(6)+dtw(c',coff');
+    
+end
+
+[M,I]=min(d);
+d(I)=0;
+me=sum(d)/5;
+difference=me-M;
+disp('The spoken word is: ');
+if difference>(2.5*10^3)
+    if I==1
+        disp('Tennis')
+    elseif I==2
+        disp('Golf')
+    elseif I==3
+        disp('Soccer')
+    elseif I==4
+        disp('Darts')
+    elseif I==5
+        disp('Rugby')
+    elseif I==6
+        disp('Chess')
+    end
+else
+    disp('Unknown');
+end
+
+
